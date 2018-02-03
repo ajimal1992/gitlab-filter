@@ -20,7 +20,7 @@
     |-server.js
 
 ## Description
-You could use this if you want to start a fresh NodeJS web application with MVC structure. There's minimal content in the web app. As such, add your own controllers on `server.js` and views on `views folder`. I have implemented error routing when an exception is thrown or unspecified route is requested. Send me a merge request if you want to add a improvement feature. However, do keep the feature at it's minimal. Thank you.
+You could use this if you want to start a fresh NodeJS web application with MVC structure. There's minimal content in the web app. As such, add your own controllers on `server.js` and views on `views folder`. I have implemented error routing when an exception is thrown or unspecified route is requested. Send me a merge request if you want to add an improvement feature. However, do keep the feature at its minimal. Thank you.
 #### Site Folder
 Contains the web application's source codes. Consists of js, css and views folder
 #### Config Folder
