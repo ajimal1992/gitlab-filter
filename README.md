@@ -46,5 +46,5 @@ NodeJS server
 5. Start server
 
        node server.js
-6. Browse to - https://localhost:55555/
+6. Browse to - http://localhost:55555/
 
