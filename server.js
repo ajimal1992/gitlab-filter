@@ -1,6 +1,9 @@
 //Config
 var config = require('./config/config');
 
+//request
+var request = require('request');
+
 //setup http express server
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -33,6 +36,34 @@ app.get(config.HOME_ROUTE, function (req, res) {
 	renderView(res,config.HOME_VIEW_DIR,config.HOME_FN);
 });
 
+//repos controller
+app.get(config.REPO_ROUTE, function(req, res){
+    var search_query = req.query['search'];
+    //console.log("Search: '" + search_query + "'");
+    var options = {
+		url: config.GL_SERVER + 'api/v4/groups/' + config.GL_GRP_ID +'/projects?private_token=' + config.GL_TOKEN + '&simple=true&search='+search_query,
+		rejectUnauthorized: false,
+		requestCert: false,
+		agent: false
+	};
+	//console.log(options);
+	request.get(options,
+		function(error,response, body){
+            var json_data = JSON.parse(body);
+            // console.log("Error: " + error); //TODO: If error send an error 400
+            var data = [];
+            for(var i=0; i<json_data.length; i++){
+                var id = json_data[i].id;
+                var repo = json_data[i].name;
+                var web_url = '<a href="' + json_data[i].web_url + '">' + json_data[i].web_url + '</a>';
+                data.push([id,repo,web_url]);
+                // console.log("id:" + id + ", repo:" + repo + ", web_url:"+ web_url);
+            }
+			res.send(data);
+		}
+	);
+    //res.send("test");
+});
 //other controllers...
 //app.get/post...
 

@@ -1,1 +1,21 @@
 /*custom css*/
+
+body {
+    padding-top: 5rem;
+}
+.starter-template {
+padding: 3rem 1.5rem;
+text-align: center;
+}
+
+#search_repo{
+    margin-bottom: 10px;
+}
+
+.commit_search_ctrl{
+    float: right;
+}
+
+#search_commits{
+    margin-bottom: 10px;
+}

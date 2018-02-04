@@ -15,3 +15,9 @@ exports.PORT = 55555;
 
 //URL routes (views)
 exports.HOME_ROUTE = "/home";
+exports.REPO_ROUTE = "/repos";
+
+//gitlab
+exports.GL_TOKEN = "gk2HpsYhWFiHxVMgFdyK"
+exports.GL_SERVER = "https://192.168.0.18/"
+exports.GL_GRP_ID = "3";

@@ -1,6 +1,6 @@
 # Gitlab Filter app [STILL UNDER PROGRESS]
 - [x] Data table to select repos
-- [ ] Search for repos
+- [x] Search for repos
 - [ ] Search for commits for each repo
 - [ ] ! Search feature
 - [ ] Code cleanup

@@ -8,14 +8,16 @@
     <meta name="author" content="">
     <link rel="icon" href="https://getbootstrap.com/favicon.ico">
 
-    <title>Starter Template for Bootstrap</title>
+    <title>Home</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/b-1.5.1/sl-1.2.5/datatables.min.css" rel="stylesheet"/>
+	<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+	<link href="https://cdn.datatables.net/select/1.2.5/css/select.dataTables.min.css" rel="stylesheet"/>
+	<link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
 
     <!-- Custom styles for this template -->
-	<link href="https://getbootstrap.com/docs/4.0/examples/starter-template/starter-template.css" rel="stylesheet">
+	<link href="css/custom.css" rel="stylesheet">
 	
   </head>
 
@@ -43,41 +45,129 @@
         <p class="lead">Start by searching for GitLab repositories. Select multiple repositories by clicking on the rows.</p>
 	  </div>
 	  
+	  <input class="form-control" type="text" id="search_repo" placeholder="Search Repository...">
+	  <div class="form-check">
+			<input class="form-check-input" id="select_all_repos" type="checkbox" data-toggle="toggle">
+			<label class="form-check-label" for="select_all_repos">
+			  Select all
+			</label>
+	  </div> 
 	  <table id="example" class="display" cellspacing="0" width="100%">
 			<thead>
 				<tr>
+					<th>ID</th>
 					<th>Repo Name</th>
 					<th>Repo Link</th>
 				</tr>
 			</thead>
 			<tbody>
+			 <!--
 				<tr>
+					<td></td>
 					<td>doc-helloworld</td>
-					<td><a href="http://192.xxx.x.xx/p1s_build/doc-helloworld.git">http://192.xxx.x.xx/p1s_build/doc-helloworld.git</a></td>
+					<td><a href="https://192.xxx.x.xx/p1s_build/doc-helloworld.git">https://192.xxx.x.xx/p1s_build/doc-helloworld.git</a></td>
 				</tr>
 				<tr>
+					<td></td>
 					<td>build-docs</td>
-					<td><a href="http://192.xxx.x.xx/p1s_build/build-docs.git">http://192.xxx.x.xx/p1s_build/build-docs.git</a></td>
+					<td><a href="https://192.xxx.x.xx/p1s_build/build-docs.git">https://192.xxx.x.xx/p1s_build/build-docs.git</a></td>
 				</tr>
+			-->
 			</tbody>
 		</table>
+		<br/>
+		<!--<div class="commit_search_ctrl col-lg-4 col-sm-4">-->
+			<input class="form-control" type="text" id="search_commits" placeholder="Search Commits...">
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="checkbox" id="search_author">
+				<label class="form-check-label" for="search_author">Author</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="checkbox" id="search_msg">
+				<label class="form-check-label" for="search_msg">Message</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="checkbox" id="search_not">
+				<label class="form-check-label" for="search_not">!</label>
+			</div>
+		<!-- </div> -->
 
     </main><!-- /.container -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"><\/script>')</script>
-    <script src="https://getbootstrap.com/assets/js/vendor/popper.min.js"></script>
-	<script src="https://getbootstrap.com/dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jqc-1.12.3/dt-1.10.16/b-1.5.1/sl-1.2.5/datatables.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="https://getbootstrap.com/assets/js/vendor/popper.min.js"></script>
+	<script type="text/javascript" src="https://getbootstrap.com/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
 	<script type="text/javascript">
-		var table = $('#example').DataTable();
- 
+		var table = $('#example').DataTable(
+			{
+				searching: false, 
+				paging: false,
+				bInfo : false,
+				columnDefs: [
+					{
+					"targets": [0],
+					"visible": false,
+					}
+				]
+			}
+		);
+		 
 		$('#example tbody').on( 'click', 'tr', function () {
 			$(this).toggleClass('selected');
-		} );
+		});
+
+		$('#select_all_repos').change(function() {
+			if (this.checked) {
+				table.rows().select();
+			} else {
+				table.rows().deselect();
+			}
+		});
+
+		$('#search_repo').keypress(function (e) {
+  			if (e.which == 13) {
+				var search_query = $('#search_repo').val();
+
+				$.get('/repos', {search: search_query}, function(data){ //TODO: Error catching on connection failure
+					//console.log(data);
+					table.clear();
+					table.rows.add(data).draw();
+				},"json");
+			}
+			//console.log(table.rows('.selected').data());
+			//console.log(table.rows('.selected').data().length +' row(s) selected' );
+		});
+
+		$('#search_commits').keypress(function (e) {
+  			if (e.which == 13) {
+				if(table.rows('.selected').data().length == 0){
+					alert("No repositories selected");
+				}
+				else{
+					var data = table.rows('.selected').data();
+					console.log(data);
+					//get commits
+				}
+			}
+		});
+		// console.log(table.rows().data());
+
+		/*
+		table.clear();
+		table.rows.add( [ 
+			['0',"asasa","asas"],
+			['1',"Asas","as"],
+			["2","asas","as"]
+		]).draw();
+
+		console.log(table.rows().data());
+		*/
 	</script>
   </body>
 </html>
