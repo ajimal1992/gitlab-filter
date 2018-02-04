@@ -12,7 +12,7 @@
     |-server.js
 
 ## Description
-This app accesses the GitLab API to filter repos and commits. The current version of  GitLab (v10.4.2) does not have a feature to filter repo commits by author. I needed to filter commits by author on my GitLab so i created a quick app to filter repos and commits based on commit message and author. Some extra functions would be to have a `!` search.
+This app accesses the GitLab API to filter repos and commits. The current version of  GitLab (v10.4.2) does not have a feature to filter repo commits by author. I needed to filter commits by author on my GitLab so I've cooked up an app to filter repos and commits based on commit message and author. Some extra functions would be to have a `!` search.
 #### Site Folder
 Contains the web application's source codes. Consists of js, css and views folder
 #### Config Folder
@@ -28,10 +28,10 @@ NodeJS server
     - Linux - https://www.ostechnix.com/install-node-js-linux/
 2. Clone repo
 
-       git clone https://github.com/ajimal1992/minimal-nodejs-mvc.git
+       git clone https://github.com/ajimal1992/gitlab-filter.git
 3. Go to repo directory
 
-       cd minimal-nodejs-mvc
+       cd gitlab-filter
 4. Install dependencies
 
        npm install
