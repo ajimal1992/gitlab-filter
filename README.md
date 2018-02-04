@@ -1,26 +1,18 @@
-# Minimal NodeJS MVC stucture
+# Gitlab Filter app [STILL UNDER PROGRESS]
+- [x] Data table to select repos
+- [ ] Search for repos
+- [ ] Search for commits for each repo
+- [ ] ! Search feature
+- [ ] Code cleanup
 ## File Structure
     |-config
         |-config.js
     |-site
-        |-js
-            |-custom.js
-            |-jquery-ui.min.js
-            |-jquery.min.js
-        |-css
-            |-jquery-ui.css
-            |-custom.css
-        |-views
-            |-home
-                |-home.html
-            |-error
-                |-error_404.html
-                |-error_failure.html
     |-package.json
     |-server.js
 
 ## Description
-You could use this if you want to start a fresh NodeJS web application with MVC structure. There's minimal content in the web app. As such, add your own controllers on `server.js` and views on `views folder`. I have implemented error routing when an exception is thrown or unspecified route is requested. Send me a merge request if you want to add an improvement feature. However, do keep the feature at its minimal. Thank you.
+This app accesses the GitLab API to filter repos and commits. The current version of  GitLab (v10.4.2) does not have a feature to filter repo commits by author. I needed to filter commits by author on my GitLab so i created a quick app to filter repos and commits based on commit message and author. Some extra functions would be to have a `!` search.
 #### Site Folder
 Contains the web application's source codes. Consists of js, css and views folder
 #### Config Folder
