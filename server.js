@@ -10,11 +10,18 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var app = express();
 
+//IO
+var io = require('socket.io')(server);
+
 app.use(bodyParser.json()); //use json parser
 
 //specify the resource folders (js and CSS)
+/*
 app.use('/' + config.JS_DIR,express.static(path.join(__dirname + '/', config.SITE_DIR, config.JS_DIR))); 
 app.use('/' + config.CSS_DIR,express.static(path.join(__dirname + '/', config.SITE_DIR, config.CSS_DIR)));
+app.use('/' + config.SOCKET_DIR + '/',express.static(path.join(__dirname + '/', config.SITE_DIR, config.SOCKET_DIR)));
+*/
+app.use(express.static(__dirname));
 
 var server = require('http').createServer(app); 
 
@@ -27,6 +34,15 @@ server.listen(config.PORT, function() {
     console.log('Server listening at port %d', config.PORT);
 });
 
+//IO
+io.on('connection', function(socket) {
+    io.emit("xxx_send_response", {msg:"sent"});
+
+    socket.on("xxx_recv_request", function(data) {
+        console.log(data);
+        //process request
+    });
+});
 
 //-----------------------------------controllers-----------------------------------------------//
 
@@ -41,7 +57,7 @@ app.get(config.REPO_ROUTE, function(req, res){
     var search_query = req.query['search'];
     //console.log("Search: '" + search_query + "'");
     var options = {
-		url: config.GL_SERVER + 'api/v4/groups/' + config.GL_GRP_ID +'/projects?private_token=' + config.GL_TOKEN + '&simple=true&search='+search_query,
+		url: config.GL_SERVER + 'api/v4/groups/' + config.GL_GRP_ID +'/projects?private_token=' + config.GL_TOKEN + '&simple=true&per_page=100&search='+search_query,
 		rejectUnauthorized: false,
 		requestCert: false,
 		agent: false
@@ -51,6 +67,7 @@ app.get(config.REPO_ROUTE, function(req, res){
 		function(error,response, body){
             var json_data = JSON.parse(body);
             // console.log("Error: " + error); //TODO: If error send an error 400
+            console.log(response.headers);
             var data = [];
             for(var i=0; i<json_data.length; i++){
                 var id = json_data[i].id;

@@ -12,13 +12,13 @@
 
     <!-- Bootstrap core CSS -->
     <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
-	<link href="https://cdn.datatables.net/select/1.2.5/css/select.dataTables.min.css" rel="stylesheet"/>
-	<link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
+		<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+		<link href="https://cdn.datatables.net/select/1.2.5/css/select.dataTables.min.css" rel="stylesheet"/>
+		<link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
 
-    <!-- Custom styles for this template -->
-	<link href="css/custom.css" rel="stylesheet">
-	
+			<!-- Custom styles for this template -->
+		<link href="css/custom.css" rel="stylesheet">
+		
   </head>
 
   <body>
@@ -97,17 +97,24 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="https://getbootstrap.com/assets/js/vendor/popper.min.js"></script>
 	<script type="text/javascript" src="https://getbootstrap.com/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
 	<script type="text/javascript">
+		var socket = io.connect();
+
+		socket.on('xxx_send_response', function(data) {
+						console.log(data);
+						socket.emit("xxx_recv_request", {msg: "received"});
+		});
+		
 		var table = $('#example').DataTable(
 			{
 				searching: false, 
-				paging: false,
 				bInfo : false,
 				columnDefs: [
 					{

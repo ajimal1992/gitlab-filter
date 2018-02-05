@@ -9,6 +9,7 @@ exports.HOME_VIEW_DIR = VIEWS_DIR + "home/";
 exports.ERROR_VIEW_DIR = VIEWS_DIR + "error/";
 exports.JS_DIR = "js/";
 exports.CSS_DIR = "css/";
+exports.SOCKET_DIR = "socket.io/"
 
 //Port
 exports.PORT = 55555;
@@ -18,6 +19,6 @@ exports.HOME_ROUTE = "/home";
 exports.REPO_ROUTE = "/repos";
 
 //gitlab
-exports.GL_TOKEN = "gk2HpsYhWFiHxVMgFdyK"
-exports.GL_SERVER = "https://192.168.0.18/"
+exports.GL_TOKEN = "C5uRs1EqyjNiRptmFraR" //expire 15 March
+exports.GL_SERVER = "https://192.168.2.50/"
 exports.GL_GRP_ID = "3";
