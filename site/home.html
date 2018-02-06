@@ -104,14 +104,9 @@
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js"></script>
+	
 	<script type="text/javascript">
-		var socket = io.connect();
-
-		socket.on('xxx_send_response', function(data) {
-						console.log(data);
-						socket.emit("xxx_recv_request", {msg: "received"});
-		});
-		
 		var table = $('#example').DataTable(
 			{
 				searching: false, 
@@ -124,6 +119,18 @@
 				]
 			}
 		);
+
+		var socket = io.connect();
+		/*
+		socket.on('xxx_send_response', function(data) {
+						console.log(data);
+						socket.emit("xxx_recv_request", {msg: "received"});
+		});
+		*/
+		socket.on("get_repos",function(data) {
+			table.rows.add(data).draw();
+			$.LoadingOverlay("hide");
+		});
 		 
 		$('#example tbody').on( 'click', 'tr', function () {
 			$(this).toggleClass('selected');
@@ -140,12 +147,17 @@
 		$('#search_repo').keypress(function (e) {
   			if (e.which == 13) {
 				var search_query = $('#search_repo').val();
-
+				/*
 				$.get('/repos', {search: search_query}, function(data){ //TODO: Error catching on connection failure
 					//console.log(data);
 					table.clear();
 					table.rows.add(data).draw();
 				},"json");
+				*/
+				$.LoadingOverlay("show");
+				table.clear();
+				socket.emit("search_repos",{"search":search_query});
+
 			}
 			//console.log(table.rows('.selected').data());
 			//console.log(table.rows('.selected').data().length +' row(s) selected' );
