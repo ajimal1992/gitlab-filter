@@ -44,38 +44,61 @@ io.on('connection', function(socket) {
 
     socket.on("search_repos", function(query){
         var search_query = query['search'];
-        //console.log("Search: '" + search_query + "'");
-        var options_ori = {
-            url: config.GL_SERVER + 'api/v4/groups/' + config.GL_GRP_ID +'/projects?private_token=' + config.GL_TOKEN + '&simple=true&per_page=100&search='+search_query,
+        var options = {
+            url: config.GL_SERVER + 'api/v4/groups/' + config.GL_GRP_ID +'/projects?private_token=' + config.GL_TOKEN + 
+                                    '&simple=true&per_page=100&search='+search_query,
             method: 'HEAD',
             rejectUnauthorized: false,
             requestCert: false,
             agent: false
         };
-        //console.log(options);
         request.get(options,
             function(error,response, body){
                 // console.log("Error: " + error); //TODO: If error send an error 400
-                console.log(response.headers);
-                var total_pages = parseInt(response.headers.x-total-pages);
-                var n = 1; //loop with delay
-                var request_delay = 200;
+                //console.log(response.headers);
+                var total_pages = parseInt(response.headers["x-total-pages"]);
+                //loop with delay
+                var n = 1;
+                var request_delay = 100;
+                options.method = 'GET';
                 function request_page() {
-                    //request
-                    //var options = JSON.parse(JSON.stringify(options_ori));
+                    var page = n;
+                    var new_options = JSON.parse(JSON.stringify(options));
+                    new_options.url = options.url + "&page=" + page;
+                    request.get(new_options,
+                        function(e,r,b){
+                            // console.log("Error: " + e); //TODO: If error send an error 400
+                            var json_data = JSON.parse(b);
+                            var data = [];
+                            for(var i=0; i<json_data.length; i++){ 
+                                var id = json_data[i].id;
+                                var repo = json_data[i].name;
+                                var web_url = '<a href="' + json_data[i].web_url + '">' + json_data[i].web_url + '</a>';
+                                data.push([id,repo,web_url]);
+                                // console.log("id:" + id + ", repo:" + repo + ", web_url:"+ web_url);
+                            }
+                            var json_response = 
+                            {
+                                "EOD":false, //End Of Data
+                                "data":null
+                            }
+                            if(page==total_pages){
+                                json_response.EOD = true
+                            }
+                            json_response.data = data;
+                            io.emit("get_repos",json_response);
+                        }
+                    );
 
-                    /*
-                    replace options with this...
-                    var x = "asdasdasdasd=asdsad&sasdda&page=13asasasassad";
-                    var y = x.substring(0,x.search("page=")+5) + 23;
-                    console.log(y);
-                    */
+                    //go to next loop
                     n++;
                     if( n < (total_pages+1)){
                         setTimeout( request_page, request_delay);
                     }
                 }
                 request_page();
+
+                /*
                 var json_data = JSON.parse(body);
                 var data = [];
                 for(var i=0; i<json_data.length; i++){ //TODO: BETTER logic to remove duplicate forloop
@@ -101,6 +124,7 @@ io.on('connection', function(socket) {
 
                     }
                 }
+                */
             }
         );
     });

@@ -110,7 +110,8 @@
 		var table = $('#example').DataTable(
 			{
 				searching: false, 
-				bInfo : false,
+				//bInfo : false,
+				//paging: false,
 				columnDefs: [
 					{
 					"targets": [0],
@@ -128,8 +129,11 @@
 		});
 		*/
 		socket.on("get_repos",function(data) {
-			table.rows.add(data).draw();
-			$.LoadingOverlay("hide");
+			console.log(JSON.stringify(data))
+			table.rows.add(data["data"]).draw();
+			if(data["EOD"]==true){
+				$.LoadingOverlay("hide");
+			}
 		});
 		 
 		$('#example tbody').on( 'click', 'tr', function () {
