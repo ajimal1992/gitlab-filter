@@ -52,7 +52,7 @@
 			  Select all
 			</label>
 	  </div> 
-	  <table id="example" class="display" cellspacing="0" width="100%">
+	  <table id="repo_table" class="display" cellspacing="0" width="100%">
 			<thead>
 				<tr>
 					<th>ID</th>
@@ -61,18 +61,6 @@
 				</tr>
 			</thead>
 			<tbody>
-			 <!--
-				<tr>
-					<td></td>
-					<td>doc-helloworld</td>
-					<td><a href="https://192.xxx.x.xx/p1s_build/doc-helloworld.git">https://192.xxx.x.xx/p1s_build/doc-helloworld.git</a></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>build-docs</td>
-					<td><a href="https://192.xxx.x.xx/p1s_build/build-docs.git">https://192.xxx.x.xx/p1s_build/build-docs.git</a></td>
-				</tr>
-			-->
 			</tbody>
 		</table>
 		<br/>
@@ -86,11 +74,28 @@
 				<input class="form-check-input" type="checkbox" id="search_msg">
 				<label class="form-check-label" for="search_msg">Message</label>
 			</div>
-			<div class="form-check form-check-inline">
-				<input class="form-check-input" type="checkbox" id="search_not">
-				<label class="form-check-label" for="search_not">!</label>
-			</div>
 		<!-- </div> -->
+		<br/>
+		<!-- Commit logs below -->
+		<div id="commit_table_template_container" class="commit_table_container">
+			<br/>
+			<h3 class="commit_repo_header">Repository</h3>
+			<table id="commit_table" class="display" cellspacing="0" width="100%">
+				<thead>
+					<tr>
+						<th>Arthor Name</th>
+						<th>Commit Message</th>
+						<th>Time</th>
+						<th>Commit link</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+			<br/>
+		</div>
+		<div id="commit_logs">
+		</div>
 
     </main><!-- /.container -->
 
@@ -107,7 +112,7 @@
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js"></script>
 	
 	<script type="text/javascript">
-		var table = $('#example').DataTable(
+		var table = $('#repo_table').DataTable(
 			{
 				searching: false, 
 				//bInfo : false,
@@ -129,14 +134,14 @@
 		});
 		*/
 		socket.on("get_repos",function(data) {
-			console.log(JSON.stringify(data))
+			// console.log(JSON.stringify(data))
 			table.rows.add(data["data"]).draw();
 			if(data["EOD"]==true){
 				$.LoadingOverlay("hide");
 			}
 		});
 		 
-		$('#example tbody').on( 'click', 'tr', function () {
+		$('#repo_table tbody').on( 'click', 'tr', function () {
 			$(this).toggleClass('selected');
 		});
 
@@ -149,7 +154,7 @@
 		});
 
 		$('#search_repo').keypress(function (e) {
-  			if (e.which == 13) {
+  		if (e.which == 13) {
 				var search_query = $('#search_repo').val();
 				/*
 				$.get('/repos', {search: search_query}, function(data){ //TODO: Error catching on connection failure
@@ -167,18 +172,70 @@
 			//console.log(table.rows('.selected').data().length +' row(s) selected' );
 		});
 
+		//commit functions
+		socket.on("get_commits:",
+			function(data) {
+				//console.log(JSON.stringify(data))
+				table.rows.add(data["data"]).draw();
+				if(data["EOD"]==true){
+					$.LoadingOverlay("hide");
+				}
+			}
+		);
+
+		var repo_tables = new Object();
+
 		$('#search_commits').keypress(function (e) {
-  			if (e.which == 13) {
+  		if (e.which == 13) {
 				if(table.rows('.selected').data().length == 0){
 					alert("No repositories selected");
 				}
 				else{
+					var search_query = $('#search_commits').val();
+					//console.log(search_query);
 					var data = table.rows('.selected').data();
-					console.log(data);
+					$.LoadingOverlay("show");
+					clear_commit_template();
+					//console.log(data);
+					for(var i=0; i<data.length; i++){
+						init_commit_template(data[i][0],data[i][1]);
+					}
 					//get commits
+					var json_request = 
+							{
+								"search":search_query,
+								"data":data,
+								"author":$('#search_author').is(":checked"),
+								"msg":$('#search_msg').is(":checked")
+							}
+					socket.emit("search_commits",json_request);
 				}
 			}
 		});
+
+		
+		function init_commit_template(repo_id,repo_name){
+			var commit_template = $('#commit_table_template_container').clone().prop("id",repo_name+"_container"); //change container id
+			commit_template.children("h3").text(repo_name); //change header text
+			commit_template.children("table").prop("id",repo_name); //change table 
+			$("#commit_logs").append(commit_template);//insert table container into commits log container
+			var commit_table = $('#'+repo_name).DataTable( //init table
+				{
+					searching: false
+				}
+			).select.style("api");
+			repo_tables[repo_id] = commit_table; //add table to global list
+		}
+		
+		function clear_commit_template(){
+			for (var repo in repo_tables){
+				if (repo_tables.hasOwnProperty(repo)){
+						delete repo_tables[repo];
+				}
+			}
+			$('#commit_logs').empty();
+		}
+
 		// console.log(table.rows().data());
 
 		/*

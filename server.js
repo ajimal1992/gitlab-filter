@@ -42,6 +42,36 @@ io.on('connection', function(socket) {
     });
     */
 
+    socket.on("search_commits", function(query){
+        console.log(query);
+        //..START@aji - Query received successfully. Need to handle 
+        /*
+        { 
+            search: 'kedacom',
+            data: 
+            {   '0': 
+                [ 
+                    2,
+                    'build-docs',
+                    '<a href="https://192.168.0.18/p1s_build/build-docs">https://192.168.0.18/p1s_build/build-docs</a>' 
+                ],
+                '1': 
+                [ 
+                    6,
+                    'test-repo-1',
+                    '<a href="https://192.168.0.18/p1s_build/test-repo-1">https://192.168.0.18/p1s_build/test-repo-1</a>' 
+                ],
+                context: [ [Object] ],
+                length: 2,
+                selector: { rows: '.selected', cols: null, opts: [Object] },
+                ajax: { __dt_wrapper: true } },
+            author: true,
+            msg: true 
+        }
+        */
+        //have fun...
+    });
+
     socket.on("search_repos", function(query){
         var search_query = query['search'];
         var options = {

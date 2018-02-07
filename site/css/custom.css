@@ -19,3 +19,7 @@ text-align: center;
 #search_commits{
     margin-bottom: 10px;
 }
+
+#commit_table_template_container{
+    display: none;
+}
