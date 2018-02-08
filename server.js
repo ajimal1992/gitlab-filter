@@ -43,8 +43,7 @@ io.on('connection', function(socket) {
     */
 
     socket.on("search_commits", function(query){
-        console.log(query);
-        //..START@aji - Query received successfully. Need to handle 
+        //console.log(query);
         /*
         { 
             search: 'kedacom',
@@ -69,7 +68,136 @@ io.on('connection', function(socket) {
             msg: true 
         }
         */
-        //have fun...
+        var search_query = query.search;
+        if(!search_query){
+            var not_filter = false;
+        }
+        else{
+            if(search_query.charAt(0)=='!'){
+                var not_filter = true;
+                search_query = search_query.replace("!","");
+            }
+            else{
+                var not_filter = false;
+            }
+        }
+        var search_author = query.author;
+        var search_msg = query.search_msg;
+        var total_repos = query.data.length;
+        var repo_data = query.data; //TODO:Strip unwanted data such as name and link from html side
+        var r = 0;
+        var request_delay = 100;
+        /*
+        console.log("-------------repo_data---------------")
+        console.log(repo_data);
+        console.log("-------------repo_data[0]---------------")
+        console.log(repo_data[0]);
+        console.log("-------------repo_data[0][0]---------------")
+        console.log(repo_data[0][0]);
+        */
+        function request_repo_commits() {
+            /*
+            console.log("-------------repo_data[" + r + "]---------------")
+            console.log(repo_data[r]);
+            console.log("-------------repo_data[" + r + "][0]---------------")
+            console.log(repo_data[r][0]); //@aji fix error with [r][0]
+            */
+            var repo_id = repo_data[r][0];
+            var repo_name = repo_data[r][1];
+            var options = {
+                url: config.GL_SERVER + 'api/v4/projects/' + repo_id + '/repository/commits?private_token=' + config.GL_TOKEN,
+                method: 'HEAD',
+                rejectUnauthorized: false,
+                requestCert: false,
+                agent: false
+            };
+
+            request.get(options,
+                function(error,response, body){
+                    var total_pages = parseInt(response.headers["x-total-pages"]);
+                    //loop with delay
+                    var n = 1;
+                    options.method = 'GET';
+                    function request_page() {
+                        var page = n;
+                        var new_options = JSON.parse(JSON.stringify(options));
+                        new_options.url = options.url + "&page=" + page;
+                        request.get(new_options,
+                            function(e,r,b){
+                                // console.log("Error: " + e); //TODO: If error send an error 400
+                                var json_data = JSON.parse(b);
+                                var data = [];
+                                for(var i=0; i<json_data.length; i++){
+                                    var email = json_data[i].committer_email;
+                                    var msg = json_data[i].message;
+                                    //var web_url = '<a href="' + json_data[i].web_url + '">' + json_data[i].web_url + '</a>';
+                                    //https://192.168.0.18/p1s_build/test-repo-500/commit/df98a20ae5c184a44effa0b3cf9046e53e77976a
+                                    var web_url = config.GL_SERVER + '/p1s_build/' + repo_name +'/commit/' + json_data[i].id;
+                                    var link = '<a href="' + web_url + '">' + json_data[i].short_id; + '</a>';
+                                    var date = json_data[i].committed_date;
+
+                                    //do filter
+                                    if(search_author){
+                                        if(!not_filter){
+                                            if (email.toLowerCase().indexOf(search_query.toLowerCase()) == -1){
+                                                continue;
+                                            }
+                                        }
+                                        else{
+                                            if (email.toLowerCase().indexOf(search_query.toLowerCase()) >= 0){
+                                                continue;
+                                            }
+                                        } 
+                                    }
+
+                                    if(search_msg){
+                                        if(!not_filter){
+                                            if (msg.toLowerCase().indexOf(search_query.toLowerCase()) == -1){
+                                                continue;
+                                            }
+                                        }
+                                        else{
+                                            if (msg.toLowerCase().indexOf(search_query.toLowerCase()) >=0){
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                    data.push([email,msg.substring(0, Math.min(40,msg.length))+"...",link,date.substring(0,10)]);
+                                    // console.log("id:" + id + ", repo:" + repo + ", web_url:"+ web_url);
+                                }
+
+                                var json_response = 
+                                {
+                                    "ID":repo_id,
+                                    "EOD":false, //End Of Data
+                                    "data":null
+                                }
+                                if(page==total_pages){
+                                    if(repo_id==repo_data[total_repos-1][0]){
+                                        json_response.EOD = true;
+                                    }
+                                }
+                                json_response.data = data;
+                                io.emit("get_commits",json_response);
+                            }
+                        );
+                        //go to next loop
+                        n++;
+                        if( n < (total_pages+1)){
+                            setTimeout( request_page, request_delay);
+                        }
+                    }
+                    request_page();
+                }
+            );
+            //go to next loop
+            r++;
+            if( r < (total_repos)){
+                setTimeout( request_repo_commits, request_delay);
+            }
+        };
+        request_repo_commits();
+
     });
 
     socket.on("search_repos", function(query){

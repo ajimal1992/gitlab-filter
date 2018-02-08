@@ -83,10 +83,10 @@
 			<table id="commit_table" class="display" cellspacing="0" width="100%">
 				<thead>
 					<tr>
-						<th>Arthor Name</th>
+						<th>Arthor Email</th>
 						<th>Commit Message</th>
-						<th>Time</th>
 						<th>Commit link</th>
+						<th>Time</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -173,17 +173,15 @@
 		});
 
 		//commit functions
-		socket.on("get_commits:",
-			function(data) {
-				//console.log(JSON.stringify(data))
-				table.rows.add(data["data"]).draw();
-				if(data["EOD"]==true){
-					$.LoadingOverlay("hide");
-				}
-			}
-		);
-
 		var repo_tables = new Object();
+
+		socket.on("get_commits", function(data) {
+				// console.log(JSON.stringify(data))
+			repo_tables[data["ID"]].rows.add(data["data"]).draw();
+			if(data["EOD"]==true){
+				$.LoadingOverlay("hide");
+			}
+		});
 
 		$('#search_commits').keypress(function (e) {
   		if (e.which == 13) {
@@ -191,10 +189,10 @@
 					alert("No repositories selected");
 				}
 				else{
+					$.LoadingOverlay("show");
 					var search_query = $('#search_commits').val();
 					//console.log(search_query);
 					var data = table.rows('.selected').data();
-					$.LoadingOverlay("show");
 					clear_commit_template();
 					//console.log(data);
 					for(var i=0; i<data.length; i++){
